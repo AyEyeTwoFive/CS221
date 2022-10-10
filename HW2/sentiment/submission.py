@@ -185,28 +185,51 @@ def kmeans(examples: List[Dict[str, float]], K: int,
             final reconstruction loss)
     '''
     # BEGIN_YOUR_CODE (our solution is 28 lines of code, but don't worry if you deviate from this)
-    def dist(x,y):
-        return sum((x[i]-y[i])**2 for i in x)
-    centroids = random.sample(examples,K)
-    z = [random.randint(0,K-1) for i in examples]
-    for i in range(maxEpochs):
-        for i,x in enumerate(examples):
-            min_d=9999999
-            for k,mu in enumerate(centroids):
-                if distance(x,mu) < min_d:
-                    min_d = distance(x,mu)
-                    z[i] = k
-        for k,mu in enumerate(centroids):
-            counts = z.count()
-            sum_x = collections.defaultdict(float)
-            for i,x in enumerate(examples):
-                if z[i] == k:
-                    increment(sum_x,1/counts,x)
-                centers[k] = sum_x
-            loss = 0
-            for i,x in enumerate(examples):
-                d = x.copy()
-                increment(d,-1,centroids[z[i]])
-                loss += dotProduct(d,d)
-            return (centroids,z,loss)
+    centroids = [sample.copy() for sample in random.sample(examples, K)]
+    z = [random.randint(0, K - 1) for i in examples]
+    d = [0 for item in examples]
+    matched = None
+    xsquared = []
+    for item in examples:
+        stored = collections.defaultdict(float)
+        for k, v in item.items():
+            stored[k] = v * v
+        xsquared.append(stored)
+    for r in range(maxEpochs):
+        csquared = []
+        for item in centroids:
+            stored = collections.defaultdict(float)
+            for k, v in item.items():
+                stored[k] = v * v
+            csquared.append(stored)
+        for index, item in enumerate(examples):
+            min_d = 99999
+            for i, cluster in enumerate(centroids):
+                dist = sum(xsquared[index].values()) + sum(csquared[i].values())
+                for k in set(item.keys() & cluster.keys()):
+                    dist -= 2 * item[k] * cluster[k]
+                if dist < min_d:
+                    min_d = dist
+                    z[index] = i
+                    d[index] = min_d
+        if matched == z:
+            break
+        else:
+            ncluster = [0 for cluster in centroids]
+            for i, cluster in enumerate(centroids):
+                for k in cluster:
+                    cluster[k] = 0.0
+            for index, item in enumerate(examples):
+                ncluster[z[index]] += 1
+                cluster = centroids[z[index]]
+                for k, v in item.items():
+                    if k in cluster:
+                        cluster[k] += v
+                    else:
+                        cluster[k] = 0.0 + v
+            for i, cluster in enumerate(centroids):
+                for k in cluster:
+                    cluster[k] /= ncluster[i]
+            matched = z[:]
+    return centroids, z, sum(d)
     # END_YOUR_CODE

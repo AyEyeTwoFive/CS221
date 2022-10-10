@@ -113,21 +113,21 @@ def test3d1():
 grader.add_hidden_part('3d-1-hidden', test3d1, max_seconds=2, description="test feature extraction on repeated character n-grams")
 
 ### 3e
-def test3e():
-    for i in range(1,10):
-        print("Testing with n = ",i)
-        trainExamples = readExamples('polarity.train')
-        validationExamples = readExamples('polarity.dev')
-        featureExtractor = submission.extractCharacterFeatures(i)
-        weights = submission.learnPredictor(trainExamples, validationExamples, featureExtractor, numEpochs=20, eta=0.01)
-        outputWeights(weights, 'weights')
-        outputErrorAnalysis(validationExamples, featureExtractor, weights, 'error-analysis')  # Use this to debug
-        trainError = evaluatePredictor(trainExamples,
-                                       lambda x: (1 if dotProduct(featureExtractor(x), weights) >= 0 else -1))
-        validationError = evaluatePredictor(validationExamples,
-                                            lambda x: (1 if dotProduct(featureExtractor(x), weights) >= 0 else -1))
-        print(("Official: train error = %s, validation error = %s" % (trainError, validationError)))
-grader.add_basic_part('3e-basic', test3e, max_points=1, max_seconds=16, description="test character feature extractor with varying n")
+# def test3e():
+#     for i in range(1,10):
+#         print("Testing with n = ",i)
+#         trainExamples = readExamples('polarity.train')
+#         validationExamples = readExamples('polarity.dev')
+#         featureExtractor = submission.extractCharacterFeatures(i)
+#         weights = submission.learnPredictor(trainExamples, validationExamples, featureExtractor, numEpochs=20, eta=0.01)
+#         outputWeights(weights, 'weights')
+#         outputErrorAnalysis(validationExamples, featureExtractor, weights, 'error-analysis')  # Use this to debug
+#         trainError = evaluatePredictor(trainExamples,
+#                                        lambda x: (1 if dotProduct(featureExtractor(x), weights) >= 0 else -1))
+#         validationError = evaluatePredictor(validationExamples,
+#                                             lambda x: (1 if dotProduct(featureExtractor(x), weights) >= 0 else -1))
+#         print(("Official: train error = %s, validation error = %s" % (trainError, validationError)))
+# grader.add_basic_part('3e-basic', test3e, max_points=1, max_seconds=16, description="test character feature extractor with varying n")
 
 grader.add_manual_part('3e', max_points=3, description='explain value of n-grams')
 
